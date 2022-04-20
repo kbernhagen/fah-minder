@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>fah-minder __VERSION__</title>
+    <pkg-ref id="io.github.kbernhagen.fah-minder.pkg"/>
+    <options customize="never" require-scripts="false" hostArchitectures="x86_64,arm64" rootVolumeOnly="true"/>
+    <volume-check>
+        <allowed-os-versions>
+            <os-version min="10.14"/>
+        </allowed-os-versions>
+    </volume-check>
+    <choices-outline>
+        <line choice="default">
+            <line choice="io.github.kbernhagen.fah-minder.pkg"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="io.github.kbernhagen.fah-minder.pkg" visible="false">
+        <pkg-ref id="io.github.kbernhagen.fah-minder.pkg"/>
+    </choice>
+    <pkg-ref id="io.github.kbernhagen.fah-minder.pkg" version="__VERSION__" onConclusion="none">fah-minder.pkg</pkg-ref>
+</installer-gui-script>
