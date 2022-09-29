@@ -52,8 +52,9 @@ sign: build-universal
 		"$(source_u)"
 
 zip: sign
+	$(eval version=$(shell "$(source_u)" --version))
 	mkdir -p dist
-	zip -j "dist/$(binary).zip" "$(source_u)"
+	zip -j "dist/$(binary)-$(version).zip" "$(source_u)"
 
 pkg package: sign
 	rm -rf "$(pkghome)"

@@ -12,7 +12,9 @@ func makeVersionString() -> String {
   var version = VCS_TAG ?? "0.0.0"
   // tag[-tick-gshorthash][-dirty]
   if let tick = VCS_TICK {
-    version += "-\(tick)-g\(VCS_SHORT_HASH)"
+    if tick != 0 || VCS_WC_MODIFIED {
+      version += "-\(tick)-g\(VCS_SHORT_HASH)"
+    }
   }
   if VCS_WC_MODIFIED {
     version += "-dirty"
