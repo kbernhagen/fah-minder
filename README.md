@@ -71,6 +71,14 @@ make autorev
 ```
 
 
+## Prebuilt
+
+If you download the prebuilt binary, you may need to clear the
+quarantine bit before you can use it.
+
+    xattr -d com.apple.quarantine ./fah-minder 
+
+
 ## Dependencies
 
 - [ArgumentParser](https://github.com/apple/swift-argument-parser)
