@@ -2,7 +2,8 @@
 <installer-gui-script minSpecVersion="2">
     <title>fah-minder __VERSION__</title>
     <pkg-ref id="io.github.kbernhagen.fah-minder.pkg"/>
-    <options customize="never" require-scripts="false" hostArchitectures="x86_64,arm64" rootVolumeOnly="true"/>
+    <options customize="never" require-scripts="false" hostArchitectures="x86_64,arm64" />
+    <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="true" />
     <volume-check>
         <allowed-os-versions>
             <os-version min="10.14"/>

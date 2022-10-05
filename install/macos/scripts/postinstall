@@ -1,0 +1,17 @@
+#!/bin/bash -e
+
+# fah-minder postinstall
+
+[ "$DSTROOT" != "$HOME" ] && exit 0
+
+# user home install
+# move fah-minder to ~/bin and clean up
+
+FM="$HOME/usr/local/bin/fah-minder"
+if [ -f "$FM" ]; then
+  mkdir -p "$HOME/bin"
+  mv "$FM" "$HOME/bin/."
+  rmdir -p "$HOME/usr/local/bin" || true
+  $(sleep 10 && \
+    rm -f "$HOME"/Library/Receipts/io.github.kbernhagen.fah-minder.*) &
+fi

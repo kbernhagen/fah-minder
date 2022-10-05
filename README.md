@@ -2,15 +2,15 @@
 
 A macOS utility for the [folding@home](https://foldingathome.org) client version 8.
 
-This is my excuse to learn Swift. So don't expect best practices.
+This is my excuse to learn Swift, so don't expect best practices.
 
-Tested on macOS 10.14, 10.15, 12.3.
+Runs on macOS 10.14 or later.
 
 
 ## Usage
 
 ```
-OVERVIEW: A macOS utility for the folding@home client version 8.
+OVERVIEW: macOS utility for the folding@home client version 8
 
 USAGE: fah-minder <subcommand>
 
@@ -73,7 +73,7 @@ make autorev
 
 ## Prebuilt
 
-If you download the prebuilt binary, you may need to clear the
+If you download the prebuilt binary zip, you may need to clear the
 quarantine bit before you can use it.
 
     xattr -d com.apple.quarantine ./fah-minder 

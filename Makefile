@@ -79,6 +79,7 @@ pkg package: sign
 		--install-location / \
 		--identifier "$(id_prefix)$(binary).pkg" \
 		--version "$(version)" \
+		--scripts "$(pkgscripts)" \
 		"$(pkghome)/Packages/$(binary).pkg"
 
 	# set version in distribution.xml
@@ -89,7 +90,6 @@ pkg package: sign
 		--package-path "$(pkghome)/Packages" \
 		--version "$(version)" \
 		--resources "$(pkgresources)" \
-		--scripts "$(pkgscripts)" \
 		--sign "$(id_pkg)" --timestamp \
 		"$(pkg)"
 

@@ -11,7 +11,7 @@ import ArgumentParser
 struct FahMinder: ParsableCommand {
   static var configuration = CommandConfiguration(
     commandName: Globals.processName,
-    abstract: "A macOS utility for the folding@home client version 8.",
+    abstract: "macOS utility for the folding@home client version 8",
     discussion: "",
     version: Globals.version,
     subcommands: [Start.self, Stop.self,
