@@ -19,15 +19,10 @@ id_app = Developer ID Application: Kevin Bernhagen
 id_pkg = Developer ID Installer: Kevin Bernhagen
 id_prefix = io.github.kbernhagen.
 
-notarize_user = kbernhagen.github@gmail.com
-notarize_pass = @keychain:Developer altool: kbernhagen.github@gmail.com
+notarize_profile = kbernhagen.github@gmail.com 2KHMKJ3Y44
 
-ifdef NOTARIZE_USER
- notarize_user = $(NOTARIZE_USER)
-endif
-
-ifdef NOTARIZE_PASS
- notarize_pass = $(NOTARIZE_PASS)
+ifdef NOTARIZE_PROFILE
+ notarize_profile = $(NOTARIZE_PROFILE)
 endif
 
 build: autorev
@@ -97,20 +92,10 @@ notarize:
 	$(eval version=$(shell "$(source_u)" --version))
 	$(eval pkgfile = $(binary)-$(version).pkg)
 	$(eval pkg = $(pkghome)/$(pkgfile))
-	$(eval notarize_id = $(shell echo "$(pkgfile)" |sed 's/[^A-Za-z0-9\-\.]/-/g'))
-	@echo Requesting notarization...
-	xcrun altool --notarize-app \
-		--primary-bundle-id "$(notarize_id)" \
-		--username "$(notarize_user)" \
-		--password "$(notarize_pass)" \
-		--file "$(pkg)"
-	@echo Please wait for an email that notarization was successful.
-	@echo Then run "make staple"
-
-staple:
-	xcrun stapler staple "$(pkghome)"/*.pkg
+	xcrun notarytool submit --wait -p "$(notarize_profile)" "$(pkg)"
+	xcrun stapler staple "$(pkg)"
 	mkdir -p dist
-	mv -f "$(pkghome)"/*.pkg dist/.
+	mv -f "$(pkg)" dist/.
 
 tools/autorevision.sh:
 	mkdir -p tools
@@ -136,4 +121,4 @@ distclean: clean
 	rmdir tools || true
 
 .PHONY: build install uninstall clean distclean autorev debug
-.PHONY: build-universal sign package notarize staple
+.PHONY: build-universal sign package pkg notarize

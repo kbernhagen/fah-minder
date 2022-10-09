@@ -49,7 +49,8 @@ NOTES:
 ## Build Requirements
 
 - Swift 5.3+
-- Universal build, sign, and notarize require Xcode 12.2+, macOS 10.15.4+
+- Universal build, sign, pkg require Xcode 12.2+, macOS 10.15.4+
+- Notarize requires Xcode 13+, macOS 11.3+
 
 
 ## Building
