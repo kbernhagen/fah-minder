@@ -133,20 +133,40 @@ struct FahMinder: ParsableCommand {
     }
   }
 
-  // config [key] [value]
   struct Config: ParsableCommand {
-    // FIXME should have subcommand for each key
     static var configuration = CommandConfiguration(
-      abstract: "Show or set client config values.",
-      discussion: "NOT IMPLEMENTED",
-      shouldDisplay: false)
+      abstract: "Set client config values.",
+      subcommands: [Cause.self, Cpus.self])
 
-    @OptionGroup var options: RemoteCommandOptions
-    @Argument var key: String = ""
-    @Argument var value: String = ""
+    struct Cpus: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config cpus.")
 
-    mutating func run() throws {
-      print("NOT IMPLEMENTED")
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "Number of cpus, max 256, further limited by client.")
+      var value: UInt
+
+      mutating func validate() throws {
+        if value > 256 {
+          throw ValidationError("Maximum cpus value is 256.")
+        }
+      }
+
+      mutating func run() throws {
+        send(config: ["cpus": value], options: options)
+      }
+    }
+
+    struct Cause: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config cause.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument var value: Causes
+
+      mutating func run() throws {
+        send(config: ["cause": value.rawValue], options: options)
+      }
     }
   }
 
@@ -162,6 +182,42 @@ struct FahMinder: ParsableCommand {
     mutating func run() throws {
       print("NOT IMPLEMENTED")
     }
+  }
+}
+
+
+extension FahMinder.Config {
+
+  enum Causes: String, ExpressibleByArgument, CaseIterable {
+    // https://api.foldingathome.org/project/cause
+    case any // "unspecified"
+    case alzheimers
+    case cancer
+    case huntingtons
+    case parkinsons
+    case influenza
+    case diabetes
+    case covid_19 = "covid-19"
+  }
+
+  static func send(config: [String:Any], options: RemoteCommandOptions) {
+    // validate value; if no value, connect and print current value
+    let client = FahClient(host: options.host, port: options.port, peer: options.peer)
+    client.verbose = options.verbose
+    client.onDidReceive = { event in
+      switch event {
+      case .connected(_):
+        client.send(config: config) {
+          CFRunLoopStop(CFRunLoopGetMain())
+        }
+      case .error, .disconnected:
+        CFRunLoopStop(CFRunLoopGetMain())
+      default:
+        break
+      }
+    }
+    client.connect()
+    CFRunLoopRun()
   }
 }
 

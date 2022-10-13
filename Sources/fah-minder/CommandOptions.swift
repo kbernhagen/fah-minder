@@ -56,7 +56,7 @@ struct RemoteCommandOptions: ParsableArguments {
     if peer != "" {
       let peerRE = #"^\/[\w.-]*$"#
       guard peer.range(of: peerRE, options: .regularExpression) != nil else {
-        throw ValidationError("Peer must have prefix \"/\" and consist of letters, numbers, and characters \"_-.\".")
+        throw ValidationError("Peer must have prefix \"/\" and consist of letters, numbers, and characters \"_.-\".")
       }
     }
   }

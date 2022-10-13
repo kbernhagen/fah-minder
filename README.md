@@ -26,6 +26,7 @@ SUBCOMMANDS:
   finish                  Send finish to client; cleared by pause/unpause.
   status                  Show client units, config, info.
   log                     Show client log. Use control-c to stop.
+  config                  Set client config values.
 
   See 'fah-minder help <subcommand>' for detailed help.
 

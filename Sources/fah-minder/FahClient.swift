@@ -151,7 +151,8 @@ public class FahClient: WebSocketDelegate {
 
   func send(_ dict: [String:Any],  completion: (() -> ())?) {
     if !JSONSerialization.isValidJSONObject(dict) {
-      print("error: value is not a JSON object:", dict)
+      fputs("error: value is not a JSON object: \(dict)\n", stderr)
+      if shouldExitOnError { Darwin.exit(1) }
       return
     }
     guard let jsonData = try? JSONSerialization.data(withJSONObject: dict)
