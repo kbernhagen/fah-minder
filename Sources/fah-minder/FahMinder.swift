@@ -16,7 +16,7 @@ struct FahMinder: ParsableCommand {
     version: Globals.version,
     subcommands: [Start.self, Stop.self,
                   Pause.self, Unpause.self, Finish.self,
-                  Status.self,
+                  Status.self, Log.self,
                   Config.self, App.self],
     helpNames: [.long]
   )
@@ -97,8 +97,44 @@ struct FahMinder: ParsableCommand {
     }
   }
 
+  struct Log: ParsableCommand {
+    static var configuration = CommandConfiguration(
+      abstract: "Show client log. Use control-c to stop.")
+    @OptionGroup var options: RemoteCommandOptions
+
+    mutating func run() throws {
+      Globals.verbose = Globals.verbose || options.verbose
+      let client = FahClient(host: options.host, port: options.port)
+      let msg = "{\"cmd\": \"log\", \"enable\": true}"
+      client.verbose = Globals.verbose
+      client.onDidReceive = { event in
+        switch event {
+        case .connected(_):
+          client.send(msg) {}
+        case .text(let string):
+          // FIXME this works, but is obviously deficient
+          if let data = string.data(using: .utf8) {
+            let result = try? JSONSerialization.jsonObject(with:data, options: [])
+            if let arr = result as? [Any] {
+              if arr[0] as? String == "log" {
+                print(arr[2])
+              }
+            }
+          }
+        case .error(_):
+          CFRunLoopStop(CFRunLoopGetMain())
+        default:
+          break
+        }
+      }
+      client.connect()
+      CFRunLoopRun()
+    }
+  }
+
   // config [key] [value]
   struct Config: ParsableCommand {
+    // FIXME should have subcommand for each key
     static var configuration = CommandConfiguration(
       abstract: "Show or set client config values.",
       discussion: "NOT IMPLEMENTED",

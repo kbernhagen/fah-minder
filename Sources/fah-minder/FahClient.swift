@@ -148,4 +148,9 @@ public class FahClient: WebSocketDelegate {
       socket?.write(string: cmd, completion: completion)
     }
   }
+
+  func send(_ msg: String, completion: (() -> ())?) {
+    // assume valid JSON string to send
+    socket?.write(string: msg, completion: completion)
+  }
 }
