@@ -10,13 +10,10 @@
         </allowed-os-versions>
     </volume-check>
     <choices-outline>
-        <line choice="default">
-            <line choice="io.github.kbernhagen.fah-minder.pkg"/>
-        </line>
+        <line choice="io.github.kbernhagen.fah-minder.pkg"/>
     </choices-outline>
-    <choice id="default"/>
-    <choice id="io.github.kbernhagen.fah-minder.pkg" visible="false">
+    <choice id="io.github.kbernhagen.fah-minder.pkg" title="fah-minder">
         <pkg-ref id="io.github.kbernhagen.fah-minder.pkg"/>
     </choice>
-    <pkg-ref id="io.github.kbernhagen.fah-minder.pkg" version="__VERSION__" onConclusion="none">fah-minder.pkg</pkg-ref>
+    <pkg-ref id="io.github.kbernhagen.fah-minder.pkg">fah-minder.pkg</pkg-ref>
 </installer-gui-script>
