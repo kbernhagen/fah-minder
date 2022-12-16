@@ -25,6 +25,7 @@ SUBCOMMANDS:
   unpause                 Send unpause to client.
   finish                  Send finish to client; cleared by pause/unpause.
   status                  Show client units, config, info.
+  log                     Show client log. Use control-c to stop.
 
   See 'fah-minder help <subcommand>' for detailed help.
 
