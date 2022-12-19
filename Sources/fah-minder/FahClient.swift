@@ -12,6 +12,7 @@ public class FahClient: WebSocketDelegate {
   var name: String?
   let host: String
   let port: Int
+  let peer: String
   var shouldExitOnError = true
   var verbose = false
   var isConnected = false
@@ -24,19 +25,24 @@ public class FahClient: WebSocketDelegate {
   // send(config: [String:Any]),
   // processMessage, processUpdate
 
-  init(name: String? = nil, host: String, port: Int) {
+  init(name: String? = nil, host: String, port: Int, peer: String = "") {
     self.name = name
     self.host = host
     self.port = port
+    self.peer = peer
     cache = [String:Any]()
-    if name == nil { self.name = "\(host):\(port)" }
+    if name == nil {
+      self.name = "\(host):\(port)"
+      if peer.starts(with:"/") {self.name! += "\(peer)"}
+    }
     onDidReceive = {_ in}
   }
 
   func connect() {
     if isConnected { return }
     cache.removeAll()
-    let urlString = "ws://\(host):\(port)/api/websocket"
+    var urlString = "ws://\(host):\(port)/api/websocket"
+    if peer.starts(with:"/") {urlString += "\(self.peer)"}
     let url = URL(string: urlString)
     //if url == nil { return }
     var request = URLRequest(url: url!)

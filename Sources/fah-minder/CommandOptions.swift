@@ -27,4 +27,7 @@ struct RemoteCommandOptions: ParsableArguments {
 
   @Option(name: .shortAndLong, help: "The client websocket port.")
   var port: Int = Globals.defaultPort
+
+  @Option(name: .long, help: "Case sensitive peer name starting with \"/\".")
+  var peer: String = ""
 }

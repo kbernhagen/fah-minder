@@ -79,7 +79,7 @@ struct FahMinder: ParsableCommand {
 
     mutating func run() throws {
       Globals.verbose = Globals.verbose || options.verbose
-      let client = FahClient(host: options.host, port: options.port)
+      let client = FahClient(host: options.host, port: options.port, peer: options.peer)
       client.verbose = Globals.verbose
       client.onDidReceive = { event in
         switch event {
@@ -104,7 +104,7 @@ struct FahMinder: ParsableCommand {
 
     mutating func run() throws {
       Globals.verbose = Globals.verbose || options.verbose
-      let client = FahClient(host: options.host, port: options.port)
+      let client = FahClient(host: options.host, port: options.port, peer: options.peer)
       let msg = "{\"cmd\": \"log\", \"enable\": true}"
       client.verbose = Globals.verbose
       client.onDidReceive = { event in
@@ -188,7 +188,7 @@ extension FahMinder {
     Globals.verbose = Globals.verbose || options.verbose
     let knownCommands = ["pause", "unpause", "finish"]
     if knownCommands.contains(command) {
-      let client = FahClient(host: options.host, port: options.port)
+      let client = FahClient(host: options.host, port: options.port, peer: options.peer)
       client.verbose = Globals.verbose
       client.onDidReceive = { event in
         switch event {
