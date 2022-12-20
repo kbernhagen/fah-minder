@@ -11,7 +11,7 @@ struct Globals {
   static let processName = ProcessInfo.processInfo.processName
   static let version = makeVersionString()
   static let defaultHost = "127.0.0.1"
-  static let defaultPort = 7396
+  static let defaultPort: UInt16 = 7396
   static let defaultUser = "nobody"
   static let notifyPrefix = "org.foldingathome.fahclient"
   static var verbose = false

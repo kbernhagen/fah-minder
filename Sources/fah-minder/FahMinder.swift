@@ -112,7 +112,7 @@ struct FahMinder: ParsableCommand {
         case .connected(_):
           client.send(msg) {}
         case .text(let string):
-          // FIXME this works, but is obviously deficient
+          // FIXME: this works, but is obviously deficient
           if let data = string.data(using: .utf8) {
             let result = try? JSONSerialization.jsonObject(with:data, options: [])
             if let arr = result as? [Any] {

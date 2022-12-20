@@ -11,7 +11,7 @@ import Starscream
 public class FahClient: WebSocketDelegate {
   var name: String?
   let host: String
-  let port: Int
+  let port: UInt16
   let peer: String
   var shouldExitOnError = true
   var verbose = false
@@ -25,7 +25,7 @@ public class FahClient: WebSocketDelegate {
   // send(config: [String:Any]),
   // processMessage, processUpdate
 
-  init(name: String? = nil, host: String, port: Int, peer: String = "") {
+  init(name: String? = nil, host: String, port: UInt16, peer: String = "") {
     self.name = name
     self.host = host
     self.port = port
@@ -156,7 +156,7 @@ public class FahClient: WebSocketDelegate {
   }
 
   func send(_ msg: String, completion: (() -> ())?) {
-    // assume valid JSON string to send
+    // FIXME: validate JSON string to send
     socket?.write(string: msg, completion: completion)
   }
 }
