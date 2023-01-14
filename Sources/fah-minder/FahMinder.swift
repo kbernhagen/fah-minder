@@ -104,8 +104,9 @@ struct FahMinder: ParsableCommand {
 
     mutating func run() throws {
       Globals.verbose = Globals.verbose || options.verbose
-      let client = FahClient(host: options.host, port: options.port, peer: options.peer)
+      let client = FahClient(host: options.host, port: options.port)
       let msg = "{\"cmd\": \"log\", \"enable\": true}"
+      let filter = ":\(options.peer):"
       client.verbose = Globals.verbose
       client.onDidReceive = { event in
         switch event {
@@ -117,11 +118,13 @@ struct FahMinder: ParsableCommand {
             let result = try? JSONSerialization.jsonObject(with:data, options: [])
             if let arr = result as? [Any] {
               if arr[0] as? String == "log" {
-                print(arr[2])
+                if let line = arr[2] as? String {
+                  if filter == "::" || line.contains(filter) { print(line) }
+                }
               }
             }
           }
-        case .error(_):
+        case .error(_), .disconnected(_, _):
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
