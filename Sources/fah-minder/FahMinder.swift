@@ -86,7 +86,7 @@ struct FahMinder: ParsableCommand {
         case .text(let string):
           print(string)
           CFRunLoopStop(CFRunLoopGetMain())
-        case .error(_):
+        case .error, .disconnected:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -105,13 +105,12 @@ struct FahMinder: ParsableCommand {
     mutating func run() throws {
       Globals.verbose = Globals.verbose || options.verbose
       let client = FahClient(host: options.host, port: options.port)
-      let msg = "{\"cmd\": \"log\", \"enable\": true}"
       let filter = ":\(options.peer):"
       client.verbose = Globals.verbose
       client.onDidReceive = { event in
         switch event {
         case .connected(_):
-          client.send(msg) {}
+          client.send(["cmd": "log", "enable": true]) {}
         case .text(let string):
           // FIXME: this works, but is obviously deficient
           if let data = string.data(using: .utf8) {
@@ -124,7 +123,7 @@ struct FahMinder: ParsableCommand {
               }
             }
           }
-        case .error(_), .disconnected(_, _):
+        case .error, .disconnected:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -153,7 +152,6 @@ struct FahMinder: ParsableCommand {
     }
   }
 
-  // when mature, maybe use https://github.com/migueldeicaza/TermKit
   struct App: ParsableCommand {
     static var configuration = CommandConfiguration(
       commandName: "app",
@@ -199,7 +197,7 @@ extension FahMinder {
           client.send(command: command) {
             CFRunLoopStop(CFRunLoopGetMain())
           }
-        case .error(_):
+        case .error, .disconnected:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break

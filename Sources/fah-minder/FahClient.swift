@@ -21,9 +21,7 @@ public class FahClient: WebSocketDelegate {
   var lastError: Error?
   public var onDidReceive: (_ event: WebSocketEvent) -> Void
   private var timeoutTimer: DispatchSourceTimer?
-
-  // send(config: [String:Any]),
-  // processMessage, processUpdate
+  private var pingTimer: DispatchSourceTimer?
 
   init(name: String? = nil, host: String, port: UInt16, peer: String = "") {
     self.name = name
@@ -36,6 +34,19 @@ public class FahClient: WebSocketDelegate {
       if peer.starts(with:"/") {self.name! += "\(peer)"}
     }
     onDidReceive = {_ in}
+  }
+
+  func startPingTimer() {
+    pingTimer?.cancel()
+    pingTimer = DispatchSource.makeTimerSource()
+    pingTimer?.schedule(deadline: .now() + 30.0, repeating: 30.0)
+    pingTimer?.setEventHandler() {
+      if self.isConnected {
+        self.socket?.write(ping: Data())
+        if self.verbose { print("Sent ping") }
+      }
+    }
+    pingTimer?.resume()
   }
 
   func connect() {
@@ -54,36 +65,40 @@ public class FahClient: WebSocketDelegate {
     timeoutTimer?.schedule(deadline: .now() + 5.0)
     timeoutTimer?.setEventHandler() {
       fputs("Timeout connecting to \(urlString)\n", stderr)
-      if self.shouldExitOnError {
-        exit(1)
-        //CFRunLoopStop(CFRunLoopGetMain())
-      }
+      if self.shouldExitOnError { Darwin.exit(1) }
     }
     timeoutTimer?.resume()
     socket?.connect()
+    socket?.respondToPingWithPong = true
   }
 
   func disconnect() {
     timeoutTimer?.cancel()
     timeoutTimer = nil
+    pingTimer?.cancel()
+    pingTimer = nil
     socket?.disconnect()
     socket = nil
   }
 
-  func proccessMessage(_ msg: String) {
-    
+  func processUpdate(_ up: [String:Any]) {
   }
+
+  func processUpdate(_ up: [Any]) {
+  }
+
+  func proccessMessage(_ msg: String) {
+  }
+
   func proccessMessage(_ msg: Data) {
-    
   }
 
   public func didReceive(event: WebSocketEvent, client: WebSocket) {
     switch event {
     case .connected(let headers):
       isConnected = true
-      if verbose {
-        print("websocket is connected: \(headers)")
-      }
+      startPingTimer()
+      if verbose { print("websocket is connected: \(headers)") }
       timeoutTimer?.cancel()
       timeoutTimer = nil
     case .disconnected(let reason, let code):
@@ -92,29 +107,19 @@ public class FahClient: WebSocketDelegate {
         print("websocket is disconnected: \(reason) with code: \(code)")
       }
     case .text(let string):
-      if verbose {
-        print("Received text: \(string)")
-      }
+      if verbose { print("Received text: \(string)") }
       proccessMessage(string)
     case .binary(let data):
-      if verbose {
-        print("Received data: \(data.count)")
-      }
+      if verbose { print("Received data: \(data.count)") }
       proccessMessage(data)
     case .ping(_):
-      if verbose {
-        print("Received ping")
-      }
+      if verbose { print("Received ping") }
       break
     case .pong(_):
-      if verbose {
-        print("Received pong")
-      }
+      if verbose { print("Received pong") }
       break
     case .viabilityChanged(let flag):
-      if verbose {
-        print("viabilityChanged \(flag)")
-      }
+      if verbose { print("viabilityChanged \(flag)") }
       break
     case .reconnectSuggested(let flag):
       if verbose {
@@ -123,9 +128,7 @@ public class FahClient: WebSocketDelegate {
       break
     case .cancelled:
       isConnected = false
-      if verbose {
-        print("websocket cancelled")
-      }
+      if verbose { print("websocket cancelled") }
     case .error(let error):
       isConnected = false
       handleError(error)
@@ -143,20 +146,34 @@ public class FahClient: WebSocketDelegate {
     } else {
       fputs("\(m)\n", stderr)
     }
-    if shouldExitOnError { exit(1) }
+    if shouldExitOnError { Darwin.exit(1) }
+  }
+
+  func send(_ dict: [String:Any],  completion: (() -> ())?) {
+    if !JSONSerialization.isValidJSONObject(dict) {
+      print("error: value is not a JSON object:", dict)
+      return
+    }
+    guard let jsonData = try? JSONSerialization.data(withJSONObject: dict)
+    else { return }
+    let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+    send(jsonString, completion: completion)
+  }
+
+  func send(config: [String:Any],  completion: (() -> ())?) {
+    send(["cmd": "config", "config": config], completion: completion)
   }
 
   func send(command: String, completion: (() -> ())?) {
     let knownCommands = ["pause", "unpause", "finish"]
     if knownCommands.contains(command) {
-      if verbose { print("Sending command \(command)") }
-      let cmd = "{\"cmd\": \"\(command)\"}" // JSON
-      socket?.write(string: cmd, completion: completion)
+      send(["cmd": command], completion: completion)
     }
   }
 
   func send(_ msg: String, completion: (() -> ())?) {
-    // FIXME: validate JSON string to send
+    // assume valid JSON string
+    if verbose { print("Sending string: \(msg)") }
     socket?.write(string: msg, completion: completion)
   }
 }
