@@ -48,7 +48,7 @@ NOTES:
 
 ## Building
 
-Download, build, install to $HOME/bin:
+Download, build, install to `$HOME/bin`:
 
 ```bash
 git clone https://github.com/kbernhagen/fah-minder.git

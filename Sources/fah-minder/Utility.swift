@@ -2,7 +2,7 @@
 //  Utility.swift
 //  fah-minder
 //
-//  Copyright (c) 2022 Kevin Bernhagen. All rights reserved.
+//  Copyright (c) 2022-2023 Kevin Bernhagen. All rights reserved.
 //
 
 import Foundation
