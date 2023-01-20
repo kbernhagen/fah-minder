@@ -78,9 +78,8 @@ struct FahMinder: ParsableCommand {
     @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
-      Globals.verbose = Globals.verbose || options.verbose
       let client = FahClient(host: options.host, port: options.port, peer: options.peer)
-      client.verbose = Globals.verbose
+      client.verbose = options.verbose
       client.onDidReceive = { event in
         switch event {
         case .text(let string):
@@ -103,10 +102,10 @@ struct FahMinder: ParsableCommand {
     @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
-      Globals.verbose = Globals.verbose || options.verbose
+      Globals.verbose = options.verbose > 1
       let client = FahClient(host: options.host, port: options.port)
       let filter = ":\(options.peer):"
-      client.verbose = Globals.verbose
+      client.verbose = options.verbose
       client.onDidReceive = { event in
         switch event {
         case .connected(_):
@@ -147,7 +146,6 @@ struct FahMinder: ParsableCommand {
     @Argument var value: String = ""
 
     mutating func run() throws {
-      Globals.verbose = Globals.verbose || options.verbose
       print("NOT IMPLEMENTED")
     }
   }
@@ -162,7 +160,6 @@ struct FahMinder: ParsableCommand {
     @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
-      Globals.verbose = Globals.verbose || options.verbose
       print("NOT IMPLEMENTED")
     }
   }
@@ -172,11 +169,10 @@ struct FahMinder: ParsableCommand {
 extension FahMinder {
 
   static func runLocal(command: String, options: LocalCommandOptions) throws {
-    Globals.verbose = Globals.verbose || options.verbose
     let knownCommands = ["start", "stop"]
     if knownCommands.contains(command) {
       let note = "\(Globals.notifyPrefix).\(options.user).\(command)"
-      if options.verbose { print("posting \"\(note)\"") }
+      if options.verbose > 0 { print("posting \"\(note)\"") }
       notifyPost(name: note)
       // TODO: if stop, optionally wait for user's fah-client to exit
       // could open websocket and wait for disconnect
@@ -186,11 +182,10 @@ extension FahMinder {
   }
 
   static func runRemote(command: String, options: RemoteCommandOptions) throws {
-    Globals.verbose = Globals.verbose || options.verbose
     let knownCommands = ["pause", "unpause", "finish"]
     if knownCommands.contains(command) {
       let client = FahClient(host: options.host, port: options.port, peer: options.peer)
-      client.verbose = Globals.verbose
+      client.verbose = options.verbose
       client.onDidReceive = { event in
         switch event {
         case .connected(_):

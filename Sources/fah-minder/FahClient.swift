@@ -14,7 +14,7 @@ public class FahClient: WebSocketDelegate {
   let port: UInt16
   let peer: String
   var shouldExitOnError = true
-  var verbose = false
+  var verbose: Int = 0
   var isConnected = false
   private var socket: WebSocket?
   private var cache: [String:Any]
@@ -43,7 +43,7 @@ public class FahClient: WebSocketDelegate {
     pingTimer?.setEventHandler() {
       if self.isConnected {
         self.socket?.write(ping: Data())
-        if self.verbose { print("Sent ping") }
+        if self.verbose > 3 { print("Sent ping") }
       }
     }
     pingTimer?.resume()
@@ -98,37 +98,37 @@ public class FahClient: WebSocketDelegate {
     case .connected(let headers):
       isConnected = true
       startPingTimer()
-      if verbose { print("websocket is connected: \(headers)") }
+      if verbose > 3 { print("websocket is connected: \(headers)") }
       timeoutTimer?.cancel()
       timeoutTimer = nil
     case .disconnected(let reason, let code):
       isConnected = false
-      if verbose {
+      if verbose > 3 {
         print("websocket is disconnected: \(reason) with code: \(code)")
       }
     case .text(let string):
-      if verbose { print("Received text: \(string)") }
+      if verbose > 3 { print("Received text: \(string)") }
       proccessMessage(string)
     case .binary(let data):
-      if verbose { print("Received data: \(data.count)") }
+      if verbose > 3 { print("Received data: \(data.count)") }
       proccessMessage(data)
     case .ping(_):
-      if verbose { print("Received ping") }
+      if verbose > 3 { print("Received ping") }
       break
     case .pong(_):
-      if verbose { print("Received pong") }
+      if verbose > 3 { print("Received pong") }
       break
     case .viabilityChanged(let flag):
-      if verbose { print("viabilityChanged \(flag)") }
+      if verbose > 3 { print("viabilityChanged \(flag)") }
       break
     case .reconnectSuggested(let flag):
-      if verbose {
+      if verbose > 3 {
         print("reconnectSuggested \(flag)")
       }
       break
     case .cancelled:
       isConnected = false
-      if verbose { print("websocket cancelled") }
+      if verbose > 3 { print("websocket cancelled") }
     case .error(let error):
       isConnected = false
       handleError(error)
@@ -173,7 +173,7 @@ public class FahClient: WebSocketDelegate {
 
   func send(_ msg: String, completion: (() -> ())?) {
     // assume valid JSON string
-    if verbose { print("Sending string: \(msg)") }
+    if verbose > 1 { print("Sending string: \(msg)") }
     socket?.write(string: msg, completion: completion)
   }
 }
