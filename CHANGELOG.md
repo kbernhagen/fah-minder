@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added log command
 - Added peer name option for resource groups
-- Added config cause, cpus commands
+- Added config cause, cpus, on-idle commands
 
 
 ## [0.1.2] - 2022-10-24

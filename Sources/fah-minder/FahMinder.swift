@@ -136,7 +136,7 @@ struct FahMinder: ParsableCommand {
   struct Config: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Set client config values.",
-      subcommands: [Cause.self, Cpus.self])
+      subcommands: [Cause.self, Cpus.self, OnIdle.self])
 
     struct Cpus: ParsableCommand {
       static var configuration = CommandConfiguration(
@@ -166,6 +166,19 @@ struct FahMinder: ParsableCommand {
 
       mutating func run() throws {
         send(config: ["cause": value.rawValue], options: options)
+      }
+    }
+
+    struct OnIdle: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config on-idle.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "Only fold when computer is idle. (true or false)")
+      var value: Bool
+
+      mutating func run() throws {
+        send(config: ["on_idle": value], options: options)
       }
     }
   }
