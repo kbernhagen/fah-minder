@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.3] - 2023-01-22
+
 ### Added 
 
 - Added log command
@@ -38,7 +41,8 @@ First release
 Unreleased initial public commit
 
 
-[unreleased]: https://github.com/kbernhagen/fah-minder/compare/0.1.2...HEAD
+[unreleased]: https://github.com/kbernhagen/fah-minder/compare/0.1.3...HEAD
+[0.1.3]: https://github.com/kbernhagen/fah-minder/compare/0.1.2...0.1.3
 [0.1.2]: https://github.com/kbernhagen/fah-minder/compare/0.1.1...0.1.2
 [0.1.1]: https://github.com/kbernhagen/fah-minder/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/kbernhagen/fah-minder/releases/tag/0.1.0
