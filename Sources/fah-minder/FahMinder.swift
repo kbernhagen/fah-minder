@@ -136,7 +136,7 @@ struct FahMinder: ParsableCommand {
   struct Config: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Set client config values.",
-      subcommands: [Cause.self, Cpus.self, OnIdle.self])
+      subcommands: [Cause.self, Cpus.self, FoldAnon.self, OnIdle.self])
 
     struct Cpus: ParsableCommand {
       static var configuration = CommandConfiguration(
@@ -159,22 +159,38 @@ struct FahMinder: ParsableCommand {
 
     struct Cause: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config cause.")
+        abstract: "Set client config cause preference.")
 
       @OptionGroup var options: RemoteCommandOptions
-      @Argument var value: Causes
+      @Argument(help: "any, alzheimers, cancer, huntingtons, parkinsons, influenza, diabetes, covid-19")
+      var value: Causes
 
       mutating func run() throws {
         send(config: ["cause": value.rawValue], options: options)
       }
     }
 
-    struct OnIdle: ParsableCommand {
+    struct FoldAnon: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config on-idle.")
+        abstract: "Set client config fold-anon.",
+        discussion: "Fold without a username, team or passkey.")
 
       @OptionGroup var options: RemoteCommandOptions
-      @Argument(help: "Only fold when computer is idle. (true or false)")
+      @Argument(help: "true or false")
+      var value: Bool
+
+      mutating func run() throws {
+        send(config: ["fold_anon": value], options: options)
+      }
+    }
+
+    struct OnIdle: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config on-idle.",
+        discussion: "Only fold when computer is idle.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "true or false")
       var value: Bool
 
       mutating func run() throws {
