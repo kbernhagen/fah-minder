@@ -176,11 +176,15 @@ struct FahMinder: ParsableCommand {
         discussion: "Fold without a username, team or passkey.")
 
       @OptionGroup var options: RemoteCommandOptions
-      @Argument(help: "true or false")
-      var value: Bool
+      @Argument(help: "true, false, yes, no, 1, 0")
+      var value: String
+
+      mutating func validate() throws {
+        try validateBoolString(value)
+      }
 
       mutating func run() throws {
-        send(config: ["fold_anon": value], options: options)
+        send(config: ["fold_anon": value.bool!], options: options)
       }
     }
 
@@ -190,11 +194,15 @@ struct FahMinder: ParsableCommand {
         discussion: "Only fold when computer is idle.")
 
       @OptionGroup var options: RemoteCommandOptions
-      @Argument(help: "true or false")
-      var value: Bool
+      @Argument(help: "true, false, yes, no, 1, 0")
+      var value: String
+
+      mutating func validate() throws {
+        try validateBoolString(value)
+      }
 
       mutating func run() throws {
-        send(config: ["on_idle": value], options: options)
+        send(config: ["on_idle": value.bool!], options: options)
       }
     }
   }
@@ -247,6 +255,12 @@ extension FahMinder.Config {
     }
     client.connect()
     CFRunLoopRun()
+  }
+
+  static func validateBoolString(_ value: String) throws {
+    guard value.bool != nil else {
+      throw ValidationError("\"\(value)\" is not true, false, yes, no, 1, 0.")
+    }
   }
 }
 

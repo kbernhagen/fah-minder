@@ -27,3 +27,16 @@ func notifyPost(name: String!) {
   let nn = CFNotificationName(name as CFString)
   CFNotificationCenterPostNotification(nc, nn, nil, nil, true)
 }
+
+extension String {
+  var bool: Bool? {
+    switch self.lowercased() {
+    case "true", "yes", "1":
+      return true
+    case "false", "no", "0":
+      return false
+    default:
+      return nil
+    }
+  }
+}
