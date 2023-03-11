@@ -97,7 +97,7 @@ public class FahClient: WebSocketDelegate {
     switch event {
     case .connected(let headers):
       isConnected = true
-      startPingTimer()
+      //startPingTimer() // disabled; client will ping us; seems to not pong
       if verbose > 3 { print("websocket is connected: \(headers)") }
       timeoutTimer?.cancel()
       timeoutTimer = nil

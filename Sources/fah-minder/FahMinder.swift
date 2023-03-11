@@ -122,7 +122,7 @@ struct FahMinder: ParsableCommand {
               }
             }
           }
-        case .error, .disconnected:
+        case .error, .disconnected, .cancelled:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
