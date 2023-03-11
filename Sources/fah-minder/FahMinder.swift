@@ -136,7 +136,9 @@ struct FahMinder: ParsableCommand {
   struct Config: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Set client config values.",
-      subcommands: [Cause.self, Cpus.self, FoldAnon.self, OnIdle.self])
+      subcommands: [Cause.self, Checkpoint.self, Cpus.self, FoldAnon.self,
+        Key.self, OnIdle.self, Passkey.self, Priority.self, Team.self,
+        User.self])
 
     struct Cpus: ParsableCommand {
       static var configuration = CommandConfiguration(
@@ -170,6 +172,26 @@ struct FahMinder: ParsableCommand {
       }
     }
 
+    struct Checkpoint: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config checkpoint.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "3 to 30")
+      var value: Int
+
+      mutating func validate() throws {
+        let range = 3...30
+        if !range.contains(value) {
+          throw ValidationError("checkpoint must be in range 3 to 30.")
+        }
+      }
+
+      mutating func run() throws {
+        send(config: ["checkpoint": value], options: options)
+      }
+    }
+
     struct FoldAnon: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config fold-anon.",
@@ -185,6 +207,19 @@ struct FahMinder: ParsableCommand {
 
       mutating func run() throws {
         send(config: ["fold_anon": value.bool!], options: options)
+      }
+    }
+
+    struct Key: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config key.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "use 0 unless given a key")
+      var value: UInt64
+
+      mutating func run() throws {
+        send(config: ["key": value], options: options)
       }
     }
 
@@ -205,6 +240,92 @@ struct FahMinder: ParsableCommand {
         send(config: ["on_idle": value.bool!], options: options)
       }
     }
+
+    struct Passkey: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config passkey.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "empty string or 32 hexadecimal characters")
+      var value: String
+
+      mutating func validate() throws {
+        let re = #"^[0-9a-f]{32}$"#
+        value = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        if value == "" { return }
+        value = value.lowercased()
+        guard value.range(of: re, options: .regularExpression) != nil else {
+          throw ValidationError("passkey must be empty string or 32 hex chars")
+        }
+      }
+
+      mutating func run() throws {
+        send(config: ["passkey": value], options: options)
+      }
+    }
+
+    struct Priority: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config priority preference.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "idle, low, normal, inherit, high")
+      var value: ProcessPriority
+
+      mutating func run() throws {
+        send(config: ["priority": value.rawValue], options: options)
+      }
+    }
+
+    struct Team: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config team.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "An existing team number 0 to 2147483647")
+      var value: Int32
+
+      mutating func validate() throws {
+        let range = 0...Int32.max
+        if !range.contains(value) {
+          throw ValidationError("team must be in range  0 to 2147483647.")
+        }
+      }
+
+      mutating func run() throws {
+        send(config: ["team": value], options: options)
+      }
+    }
+
+    struct User: ParsableCommand {
+      static var configuration = CommandConfiguration(
+        abstract: "Set client config user.")
+
+      @OptionGroup var options: RemoteCommandOptions
+      @Argument(help: "max 100 bytes and no tab, newline, return chars")
+      var value: String
+
+      mutating func validate() throws {
+        let re = #"^[^\t\n\r]{1,100}$"#
+        value = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        if value == "" {
+          value = "Anonymous"
+          return
+        }
+        let m = "user must be 100 bytes max and not contain tab, newline, return chars."
+        if value.utf8.count > 100 {
+          throw ValidationError(m)
+        }
+        guard value.range(of: re, options: .regularExpression) != nil else {
+          throw ValidationError(m)
+        }
+      }
+
+      mutating func run() throws {
+        send(config: ["user": value], options: options)
+      }
+    }
+
   }
 
   struct App: ParsableCommand {
@@ -237,8 +358,15 @@ extension FahMinder.Config {
     case covid_19 = "covid-19"
   }
 
+  enum ProcessPriority: String, ExpressibleByArgument, CaseIterable {
+    case idle
+    case low
+    case normal
+    case inherit
+    case high
+  }
+
   static func send(config: [String:Any], options: RemoteCommandOptions) {
-    // validate value; if no value, connect and print current value
     let client = FahClient(host: options.host, port: options.port, peer: options.peer)
     client.verbose = options.verbose
     client.onDidReceive = { event in
