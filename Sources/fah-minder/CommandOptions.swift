@@ -9,9 +9,6 @@ import Foundation
 import ArgumentParser
 
 struct LocalCommandOptions: ParsableArguments {
-  @Flag(name: .shortAndLong)
-  var verbose: Int
-
   @Option(name: .shortAndLong,
     help: "The user account running the local client.")
   var user: String = Globals.defaultUser
@@ -20,10 +17,6 @@ struct LocalCommandOptions: ParsableArguments {
 }
 
 struct RemoteCommandOptions: ParsableArguments {
-  @Flag(name: .shortAndLong)
-  var verbose: Int
-
-  // TODO: support optional :port on host
   @Option(name: .shortAndLong, help: "The host running a client.")
   var host: String = Globals.defaultHost
 

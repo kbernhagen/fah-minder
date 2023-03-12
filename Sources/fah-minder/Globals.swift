@@ -15,6 +15,10 @@ struct Globals {
   static let defaultUser = "nobody"
   static let notifyPrefix = "org.foldingathome.fahclient"
   static var verbose = false
+  static var verbosity: Int = 0
+  static var host = "."
+  static var port: UInt16 = 0
+  static var peer = ""
   static let examplesText = """
 
   EXAMPLE:

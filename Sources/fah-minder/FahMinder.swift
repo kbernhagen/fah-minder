@@ -21,8 +21,22 @@ struct FahMinder: ParsableCommand {
     helpNames: [.long]
   )
 
-  // If declared here, it will steal from subcommands that want it
-  //@Flag var verbose = false
+  @Flag(name: .shortAndLong)
+  var verbose: Int
+
+  //@Argument(help: "host[:port][/group]  use \".\" for localhost")
+  //var hostPortPeer: String
+  //@OptionGroup var options: RemoteCommandOptions
+
+  mutating func validate() throws {
+    // can access vars here; validate() is called before subcommand validate
+    Globals.verbose = verbose > 0
+    Globals.verbosity = verbose
+    //Globals.hostPortPeer = hostPortPeer
+    //Globals.host = options.host
+    //Globals.port = options.port
+    //Globals.peer = options.peer
+  }
 
   struct Start: ParsableCommand {
     static var configuration = CommandConfiguration(
@@ -79,7 +93,7 @@ struct FahMinder: ParsableCommand {
 
     mutating func run() throws {
       let client = FahClient(host: options.host, port: options.port, peer: options.peer)
-      client.verbose = options.verbose
+      client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
         case .text(let string):
@@ -102,10 +116,9 @@ struct FahMinder: ParsableCommand {
     @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
-      Globals.verbose = options.verbose > 1
       let client = FahClient(host: options.host, port: options.port)
       let filter = ":\(options.peer):"
-      client.verbose = options.verbose
+      client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
         case .connected(_):
@@ -368,7 +381,7 @@ extension FahMinder.Config {
 
   static func send(config: [String:Any], options: RemoteCommandOptions) {
     let client = FahClient(host: options.host, port: options.port, peer: options.peer)
-    client.verbose = options.verbose
+    client.verbosity = Globals.verbosity
     client.onDidReceive = { event in
       switch event {
       case .connected(_):
@@ -399,7 +412,7 @@ extension FahMinder {
     let knownCommands = ["start", "stop"]
     if knownCommands.contains(command) {
       let note = "\(Globals.notifyPrefix).\(options.user).\(command)"
-      if options.verbose > 0 { print("posting \"\(note)\"") }
+      if Globals.verbose { print("posting \"\(note)\"") }
       notifyPost(name: note)
       // TODO: if stop, optionally wait for user's fah-client to exit
       // could open websocket and wait for disconnect
@@ -412,7 +425,7 @@ extension FahMinder {
     let knownCommands = ["pause", "unpause", "finish"]
     if knownCommands.contains(command) {
       let client = FahClient(host: options.host, port: options.port, peer: options.peer)
-      client.verbose = options.verbose
+      client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
         case .connected(_):
