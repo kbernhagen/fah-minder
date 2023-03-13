@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced host, port, peer options with peer argument
+
 
 ## [0.1.4] - 2023-03-12
 

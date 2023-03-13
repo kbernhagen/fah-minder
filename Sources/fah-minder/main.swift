@@ -12,4 +12,8 @@ registerExitSignal(SIGTERM)
 signal(SIGPIPE, SIG_IGN)
 signal(SIGHUP, SIG_IGN)
 
-FahMinder.main()
+if CommandLine.arguments.count == 1 {
+  FahMinder.usage()
+} else {
+  FahMinder.main()
+}

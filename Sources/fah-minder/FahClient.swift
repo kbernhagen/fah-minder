@@ -11,8 +11,8 @@ import Starscream
 public class FahClient: WebSocketDelegate {
   var name: String?
   let host: String
-  let port: UInt16
-  let peer: String
+  let port: Int
+  let group: String
   var shouldExitOnError = true
   var verbosity: Int = 0
   var isConnected = false
@@ -23,15 +23,15 @@ public class FahClient: WebSocketDelegate {
   private var timeoutTimer: DispatchSourceTimer?
   private var pingTimer: DispatchSourceTimer?
 
-  init(name: String? = nil, host: String, port: UInt16, peer: String = "") {
+  init(name: String? = nil, host: String, port: Int, group: String = "") {
     self.name = name
     self.host = host
     self.port = port
-    self.peer = peer
+    self.group = group
     cache = [String:Any]()
     if name == nil {
       self.name = "\(host):\(port)"
-      if peer.starts(with:"/") {self.name! += "\(peer)"}
+      if group.starts(with:"/") {self.name! += "\(group)"}
     }
     onDidReceive = {_ in}
   }
@@ -53,7 +53,7 @@ public class FahClient: WebSocketDelegate {
     if isConnected { return }
     cache.removeAll()
     var urlString = "ws://\(host):\(port)/api/websocket"
-    if peer.starts(with:"/") {urlString += "\(self.peer)"}
+    if group.starts(with:"/") {urlString += "\(group)"}
     let url = URL(string: urlString)
     //if url == nil { return }
     var request = URLRequest(url: url!)

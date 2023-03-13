@@ -9,16 +9,18 @@ Runs on macOS 10.14 or later.
 
 ## Usage
 
+`fah-minder .`
+
 ```
 OVERVIEW: macOS utility for the folding@home client version 8
 
-USAGE: fah-minder [--verbose ...] [--host <host>] [--port <port>] [--peer <peer>] <subcommand>
+USAGE: fah-minder [-v] <peer> <subcommand>
+
+ARGUMENTS:
+  <peer>                  [host][:port][/group]  use "." for localhost
 
 OPTIONS:
   -v, --verbose
-  -h, --host <host>       The host running a client. (default: 127.0.0.1)
-  -p, --port <port>       The client websocket port. (default: 7396)
-  --peer <peer>           Case sensitive peer name starting with "/".
   --version               Show the version.
   --help                  Show help information.
 
@@ -32,23 +34,25 @@ SUBCOMMANDS:
   log                     Show client log. Use control-c to stop.
   config                  Set client config values.
 
-  See 'fah-minder help <subcommand>' for detailed help.
+  See 'fah-minder . help <subcommand>' for detailed help.
 
-EXAMPLE:
+EXAMPLES:
+  fah-minder . finish
+  fah-minder /my-p-cores config priority normal
   # ssh tunnel to host "other.local"
   ssh -f -L 8101:localhost:7396 me@other.local sleep 2 \
-    && fah-minder status -p 8101
+    && fah-minder :8101 status
 
 NOTES:
   By default, the client only listens for connections from localhost.
 ```
 
-Although help doesn't say so, commands other than start/stop use options --host, --port, --peer.
+`fah-minder . help config`
 
 ```
 OVERVIEW: Set client config values.
 
-USAGE: fah-minder config <subcommand>
+USAGE: fah-minder [-v] <peer> config <subcommand>
 
 OPTIONS:
   --version               Show the version.
@@ -66,7 +70,7 @@ SUBCOMMANDS:
   team                    Set client config team.
   user                    Set client config user.
 
-  See 'fah-minder help config <subcommand>' for detailed help.
+  See 'fah-minder . help config <subcommand>' for detailed help.
 ```
 
 ## Build Requirements

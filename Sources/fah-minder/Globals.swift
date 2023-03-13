@@ -11,20 +11,22 @@ struct Globals {
   static let processName = ProcessInfo.processInfo.processName
   static let version = makeVersionString()
   static let defaultHost = "127.0.0.1"
-  static let defaultPort: UInt16 = 7396
+  static let defaultPort: Int = 7396
   static let defaultUser = "nobody"
   static let notifyPrefix = "org.foldingathome.fahclient"
   static var verbose = false
   static var verbosity: Int = 0
   static var host = "."
-  static var port: UInt16 = 0
-  static var peer = ""
+  static var port: Int = 0
+  static var group = ""
   static let examplesText = """
 
-  EXAMPLE:
+  EXAMPLES:
+    \(processName) . finish
+    \(processName) /my-p-cores config priority normal
     # ssh tunnel to host "other.local"
     ssh -f -L 8101:localhost:7396 me@other.local sleep 2 \\
-      && \(processName) status -p 8101
+      && \(processName) :8101 status
   
   NOTES:
     By default, the client only listens for connections from localhost.

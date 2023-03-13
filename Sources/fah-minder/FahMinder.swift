@@ -9,41 +9,29 @@ import Foundation
 import ArgumentParser
 
 struct FahMinder: ParsableCommand {
+  static var usageBase = "\(Globals.processName) [-v] <peer>"
   static var configuration = CommandConfiguration(
     commandName: Globals.processName,
     abstract: "macOS utility for the folding@home client version 8",
-    usage: "fah-minder [-v ...] [-h <host>] [-p <port>] [--peer <peer>] <subcommand>",
+    usage: "\(FahMinder.usageBase) <subcommand>",
     discussion: "",
     version: Globals.version,
     subcommands: [Start.self, Stop.self,
                   Pause.self, Unpause.self, Finish.self,
                   Status.self, Log.self,
                   Config.self, App.self],
-    helpNames: [.long]
-  )
+    helpNames: [.long])
 
-  @Flag(name: .shortAndLong)
-  var verbose: Int
-
-  //@Argument(help: "host[:port][/group]  use \".\" for localhost")
-  //var hostPortPeer: String
-  @OptionGroup var options: RemoteCommandOptions
-
-  mutating func validate() throws {
-    // can access vars here; validate() is called before subcommand validate
-    Globals.verbose = verbose > 0
-    Globals.verbosity = verbose
-    //Globals.hostPortPeer = hostPortPeer
-    Globals.host = options.host
-    Globals.port = options.port
-    Globals.peer = options.peer
-  }
+  @OptionGroup var options: MainCommandOptions
 
   struct Start: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Start service client.",
+      usage: "\(Globals.processName) [-v] . start",
       discussion: "<user> must match UserName in client launchd plist.")
+
     @OptionGroup var options: LocalCommandOptions
+
     mutating func run() throws {
       try runLocal(command: "start", options: options)
     }
@@ -51,8 +39,11 @@ struct FahMinder: ParsableCommand {
 
   struct Stop: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Stop all local clients running as <user>.")
+      abstract: "Stop all local clients running as <user>.",
+      usage: "\(Globals.processName) [-v] . stop")
+
     @OptionGroup var options: LocalCommandOptions
+
     mutating func run() throws {
       try runLocal(command: "stop", options: options)
     }
@@ -60,7 +51,9 @@ struct FahMinder: ParsableCommand {
 
   struct Pause: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Send pause to client.")
+      abstract: "Send pause to client.",
+      usage: "\(FahMinder.usageBase) pause")
+
     mutating func run() throws {
       try runRemote(command: "pause")
     }
@@ -68,7 +61,9 @@ struct FahMinder: ParsableCommand {
 
   struct Unpause: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Send unpause to client.")
+      abstract: "Send unpause to client.",
+      usage: "\(FahMinder.usageBase) unpause")
+
     mutating func run() throws {
       try runRemote(command: "unpause")
     }
@@ -76,7 +71,9 @@ struct FahMinder: ParsableCommand {
 
   struct Finish: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Send finish to client; cleared by pause/unpause.")
+      abstract: "Send finish to client; cleared by pause/unpause.",
+      usage: "\(FahMinder.usageBase) finish")
+
     mutating func run() throws {
       try runRemote(command: "finish")
     }
@@ -86,10 +83,11 @@ struct FahMinder: ParsableCommand {
   // TODO: convert message text/data to Dictionary/Array
   struct Status: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Show client units, config, info.")
+      abstract: "Show client units, config, info.",
+      usage: "\(FahMinder.usageBase) status")
 
     mutating func run() throws {
-      let client = FahClient(host: Globals.host, port: Globals.port, peer: Globals.peer)
+      let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
@@ -109,11 +107,12 @@ struct FahMinder: ParsableCommand {
 
   struct Log: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Show client log. Use control-c to stop.")
+      abstract: "Show client log. Use control-c to stop.",
+      usage: "\(FahMinder.usageBase) log")
 
     mutating func run() throws {
       let client = FahClient(host: Globals.host, port: Globals.port)
-      let filter = ":\(Globals.peer):"
+      let filter = ":\(Globals.group):"
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
@@ -148,13 +147,15 @@ struct FahMinder: ParsableCommand {
   struct Config: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Set client config values.",
+      usage: "\(FahMinder.usageBase) config <subcommand>",
       subcommands: [Cause.self, Checkpoint.self, Cpus.self, FoldAnon.self,
         Key.self, OnIdle.self, Passkey.self, Priority.self, Team.self,
         User.self])
 
     struct Cpus: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config cpus.")
+        abstract: "Set client config cpus.",
+        usage: "\(FahMinder.usageBase) config cpus <value>")
 
       @Argument(help: "Number of cpus, max 256, further limited by client.")
       var value: UInt
@@ -172,7 +173,8 @@ struct FahMinder: ParsableCommand {
 
     struct Cause: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config cause preference.")
+        abstract: "Set client config cause preference.",
+        usage: "\(FahMinder.usageBase) config cause <value>")
 
       @Argument(help: "any, alzheimers, cancer, huntingtons, parkinsons, influenza, diabetes, covid-19")
       var value: Causes
@@ -184,7 +186,8 @@ struct FahMinder: ParsableCommand {
 
     struct Checkpoint: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config checkpoint.")
+        abstract: "Set client config checkpoint.",
+        usage: "\(FahMinder.usageBase) config checkpoint <value>")
 
       @Argument(help: "3 to 30")
       var value: Int
@@ -204,6 +207,7 @@ struct FahMinder: ParsableCommand {
     struct FoldAnon: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config fold-anon.",
+        usage: "\(FahMinder.usageBase) config fold-anon <value>",
         discussion: "Fold without a username, team or passkey.")
 
       @Argument(help: "true, false, yes, no, 1, 0")
@@ -220,7 +224,8 @@ struct FahMinder: ParsableCommand {
 
     struct Key: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config key.")
+        abstract: "Set client config key.",
+        usage: "\(FahMinder.usageBase) config key <value>")
 
       @Argument(help: "use 0 unless given a key")
       var value: UInt64
@@ -233,6 +238,7 @@ struct FahMinder: ParsableCommand {
     struct OnIdle: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config on-idle.",
+        usage: "\(FahMinder.usageBase) config on-idle <value>",
         discussion: "Only fold when computer is idle.")
 
       @Argument(help: "true, false, yes, no, 1, 0")
@@ -249,7 +255,8 @@ struct FahMinder: ParsableCommand {
 
     struct Passkey: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config passkey.")
+        abstract: "Set client config passkey.",
+        usage: "\(FahMinder.usageBase) config passkey <value>")
 
       @Argument(help: "empty string or 32 hexadecimal characters")
       var value: String
@@ -271,7 +278,8 @@ struct FahMinder: ParsableCommand {
 
     struct Priority: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config priority preference.")
+        abstract: "Set client config priority preference.",
+        usage: "\(FahMinder.usageBase) config priority <value>")
 
       @Argument(help: "idle, low, normal, inherit, high")
       var value: ProcessPriority
@@ -283,7 +291,8 @@ struct FahMinder: ParsableCommand {
 
     struct Team: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config team.")
+        abstract: "Set client config team.",
+        usage: "\(FahMinder.usageBase) config team <value>")
 
       @Argument(help: "An existing team number 0 to 2147483647")
       var value: Int32
@@ -302,7 +311,8 @@ struct FahMinder: ParsableCommand {
 
     struct User: ParsableCommand {
       static var configuration = CommandConfiguration(
-        abstract: "Set client config user.")
+        abstract: "Set client config user.",
+        usage: "\(FahMinder.usageBase) config user <value>")
 
       @Argument(help: "max 100 bytes and no tab, newline, return chars")
       var value: String
@@ -334,6 +344,7 @@ struct FahMinder: ParsableCommand {
     static var configuration = CommandConfiguration(
       commandName: "app",
       abstract: "Run interactive terminal app.",
+      usage: "\(FahMinder.usageBase) app",
       discussion: "NOT IMPLEMENTED",
       shouldDisplay: false)
 
@@ -367,7 +378,7 @@ extension FahMinder.Config {
   }
 
   static func send(config: [String:Any]) {
-    let client = FahClient(host: Globals.host, port: Globals.port, peer: Globals.peer)
+    let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
     client.verbosity = Globals.verbosity
     client.onDidReceive = { event in
       switch event {
@@ -411,7 +422,7 @@ extension FahMinder {
   static func runRemote(command: String) throws {
     let knownCommands = ["pause", "unpause", "finish"]
     if knownCommands.contains(command) {
-      let client = FahClient(host: Globals.host, port: Globals.port, peer: Globals.peer)
+      let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
@@ -432,8 +443,13 @@ extension FahMinder {
     }
   }
 
-  mutating func run() throws {
+  static func usage() {
     print(FahMinder.helpMessage())
     print(Globals.examplesText)
+    Darwin.exit(EX_USAGE)
+  }
+
+  mutating func run() throws {
+    FahMinder.usage()
   }
 }
