@@ -71,9 +71,7 @@ SUBCOMMANDS:
 
 ## Build Requirements
 
-- Swift 5.3+
-- Universal build, sign, pkg require Xcode 12.2+, macOS 10.15.4+
-- Notarize requires Xcode 13+, macOS 11.3+
+- Swift 5.5+, Xcode 13+, macOS 11.3+
 
 
 ## Building

@@ -1,9 +1,12 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 
 import PackageDescription
 
 let package = Package(
   name: "fah-minder",
+  platforms: [
+    .macOS(.v10_14),
+  ],
   products: [
     .executable(name: "fah-minder", targets: ["fah-minder"]),
   ],
@@ -14,7 +17,7 @@ let package = Package(
              .upToNextMajor(from: "4.0.0")),
   ],
   targets: [
-    .target(
+    .executableTarget(
       name: "fah-minder",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),

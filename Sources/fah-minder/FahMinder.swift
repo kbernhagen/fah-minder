@@ -12,6 +12,7 @@ struct FahMinder: ParsableCommand {
   static var configuration = CommandConfiguration(
     commandName: Globals.processName,
     abstract: "macOS utility for the folding@home client version 8",
+    usage: "fah-minder [-v ...] [-h <host>] [-p <port>] [--peer <peer>] <subcommand>",
     discussion: "",
     version: Globals.version,
     subcommands: [Start.self, Stop.self,
