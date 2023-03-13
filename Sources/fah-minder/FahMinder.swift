@@ -26,16 +26,16 @@ struct FahMinder: ParsableCommand {
 
   //@Argument(help: "host[:port][/group]  use \".\" for localhost")
   //var hostPortPeer: String
-  //@OptionGroup var options: RemoteCommandOptions
+  @OptionGroup var options: RemoteCommandOptions
 
   mutating func validate() throws {
     // can access vars here; validate() is called before subcommand validate
     Globals.verbose = verbose > 0
     Globals.verbosity = verbose
     //Globals.hostPortPeer = hostPortPeer
-    //Globals.host = options.host
-    //Globals.port = options.port
-    //Globals.peer = options.peer
+    Globals.host = options.host
+    Globals.port = options.port
+    Globals.peer = options.peer
   }
 
   struct Start: ParsableCommand {
@@ -60,27 +60,24 @@ struct FahMinder: ParsableCommand {
   struct Pause: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Send pause to client.")
-    @OptionGroup var options: RemoteCommandOptions
     mutating func run() throws {
-      try runRemote(command: "pause", options: options)
+      try runRemote(command: "pause")
     }
   }
 
   struct Unpause: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Send unpause to client.")
-    @OptionGroup var options: RemoteCommandOptions
     mutating func run() throws {
-      try runRemote(command: "unpause", options: options)
+      try runRemote(command: "unpause")
     }
   }
 
   struct Finish: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Send finish to client; cleared by pause/unpause.")
-    @OptionGroup var options: RemoteCommandOptions
     mutating func run() throws {
-      try runRemote(command: "finish", options: options)
+      try runRemote(command: "finish")
     }
   }
 
@@ -89,17 +86,16 @@ struct FahMinder: ParsableCommand {
   struct Status: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Show client units, config, info.")
-    @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
-      let client = FahClient(host: options.host, port: options.port, peer: options.peer)
+      let client = FahClient(host: Globals.host, port: Globals.port, peer: Globals.peer)
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
         case .text(let string):
           print(string)
           CFRunLoopStop(CFRunLoopGetMain())
-        case .error, .disconnected:
+        case .error, .disconnected, .cancelled:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -113,11 +109,10 @@ struct FahMinder: ParsableCommand {
   struct Log: ParsableCommand {
     static var configuration = CommandConfiguration(
       abstract: "Show client log. Use control-c to stop.")
-    @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
-      let client = FahClient(host: options.host, port: options.port)
-      let filter = ":\(options.peer):"
+      let client = FahClient(host: Globals.host, port: Globals.port)
+      let filter = ":\(Globals.peer):"
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
@@ -135,7 +130,10 @@ struct FahMinder: ParsableCommand {
               }
             }
           }
-        case .error, .disconnected, .cancelled:
+        case .error, .disconnected(_,_), .cancelled:
+          // FIXME: not sufficient to catch ws close by client
+          // get eventual error:
+          // The operation couldn’t be completed. (Network.NWError error 0.)
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -157,7 +155,6 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config cpus.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "Number of cpus, max 256, further limited by client.")
       var value: UInt
 
@@ -168,7 +165,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["cpus": value], options: options)
+        send(config: ["cpus": value])
       }
     }
 
@@ -176,12 +173,11 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config cause preference.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "any, alzheimers, cancer, huntingtons, parkinsons, influenza, diabetes, covid-19")
       var value: Causes
 
       mutating func run() throws {
-        send(config: ["cause": value.rawValue], options: options)
+        send(config: ["cause": value.rawValue])
       }
     }
 
@@ -189,7 +185,6 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config checkpoint.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "3 to 30")
       var value: Int
 
@@ -201,7 +196,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["checkpoint": value], options: options)
+        send(config: ["checkpoint": value])
       }
     }
 
@@ -210,7 +205,6 @@ struct FahMinder: ParsableCommand {
         abstract: "Set client config fold-anon.",
         discussion: "Fold without a username, team or passkey.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "true, false, yes, no, 1, 0")
       var value: String
 
@@ -219,7 +213,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["fold_anon": value.bool!], options: options)
+        send(config: ["fold_anon": value.bool!])
       }
     }
 
@@ -227,12 +221,11 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config key.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "use 0 unless given a key")
       var value: UInt64
 
       mutating func run() throws {
-        send(config: ["key": value], options: options)
+        send(config: ["key": value])
       }
     }
 
@@ -241,7 +234,6 @@ struct FahMinder: ParsableCommand {
         abstract: "Set client config on-idle.",
         discussion: "Only fold when computer is idle.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "true, false, yes, no, 1, 0")
       var value: String
 
@@ -250,7 +242,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["on_idle": value.bool!], options: options)
+        send(config: ["on_idle": value.bool!])
       }
     }
 
@@ -258,7 +250,6 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config passkey.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "empty string or 32 hexadecimal characters")
       var value: String
 
@@ -273,7 +264,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["passkey": value], options: options)
+        send(config: ["passkey": value])
       }
     }
 
@@ -281,12 +272,11 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config priority preference.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "idle, low, normal, inherit, high")
       var value: ProcessPriority
 
       mutating func run() throws {
-        send(config: ["priority": value.rawValue], options: options)
+        send(config: ["priority": value.rawValue])
       }
     }
 
@@ -294,7 +284,6 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config team.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "An existing team number 0 to 2147483647")
       var value: Int32
 
@@ -306,7 +295,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["team": value], options: options)
+        send(config: ["team": value])
       }
     }
 
@@ -314,7 +303,6 @@ struct FahMinder: ParsableCommand {
       static var configuration = CommandConfiguration(
         abstract: "Set client config user.")
 
-      @OptionGroup var options: RemoteCommandOptions
       @Argument(help: "max 100 bytes and no tab, newline, return chars")
       var value: String
 
@@ -335,7 +323,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["user": value], options: options)
+        send(config: ["user": value])
       }
     }
 
@@ -347,8 +335,6 @@ struct FahMinder: ParsableCommand {
       abstract: "Run interactive terminal app.",
       discussion: "NOT IMPLEMENTED",
       shouldDisplay: false)
-
-    @OptionGroup var options: RemoteCommandOptions
 
     mutating func run() throws {
       print("NOT IMPLEMENTED")
@@ -379,8 +365,8 @@ extension FahMinder.Config {
     case high
   }
 
-  static func send(config: [String:Any], options: RemoteCommandOptions) {
-    let client = FahClient(host: options.host, port: options.port, peer: options.peer)
+  static func send(config: [String:Any]) {
+    let client = FahClient(host: Globals.host, port: Globals.port, peer: Globals.peer)
     client.verbosity = Globals.verbosity
     client.onDidReceive = { event in
       switch event {
@@ -388,7 +374,7 @@ extension FahMinder.Config {
         client.send(config: config) {
           CFRunLoopStop(CFRunLoopGetMain())
         }
-      case .error, .disconnected:
+      case .error, .disconnected, .cancelled:
         CFRunLoopStop(CFRunLoopGetMain())
       default:
         break
@@ -421,10 +407,10 @@ extension FahMinder {
     }
   }
 
-  static func runRemote(command: String, options: RemoteCommandOptions) throws {
+  static func runRemote(command: String) throws {
     let knownCommands = ["pause", "unpause", "finish"]
     if knownCommands.contains(command) {
-      let client = FahClient(host: options.host, port: options.port, peer: options.peer)
+      let client = FahClient(host: Globals.host, port: Globals.port, peer: Globals.peer)
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
@@ -432,7 +418,7 @@ extension FahMinder {
           client.send(command: command) {
             CFRunLoopStop(CFRunLoopGetMain())
           }
-        case .error, .disconnected:
+        case .error, .disconnected, .cancelled:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
