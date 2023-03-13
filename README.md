@@ -12,9 +12,13 @@ Runs on macOS 10.14 or later.
 ```
 OVERVIEW: macOS utility for the folding@home client version 8
 
-USAGE: fah-minder <subcommand>
+USAGE: fah-minder [--verbose ...] [--host <host>] [--port <port>] [--peer <peer>] <subcommand>
 
 OPTIONS:
+  -v, --verbose
+  -h, --host <host>       The host running a client. (default: 127.0.0.1)
+  -p, --port <port>       The client websocket port. (default: 7396)
+  --peer <peer>           Case sensitive peer name starting with "/".
   --version               Show the version.
   --help                  Show help information.
 
@@ -39,6 +43,31 @@ NOTES:
   By default, the client only listens for connections from localhost.
 ```
 
+Although help doesn't say so, commands other than start/stop use options --host, --port, --peer.
+
+```
+OVERVIEW: Set client config values.
+
+USAGE: fah-minder config <subcommand>
+
+OPTIONS:
+  --version               Show the version.
+  --help                  Show help information.
+
+SUBCOMMANDS:
+  cause                   Set client config cause preference.
+  checkpoint              Set client config checkpoint.
+  cpus                    Set client config cpus.
+  fold-anon               Set client config fold-anon.
+  key                     Set client config key.
+  on-idle                 Set client config on-idle.
+  passkey                 Set client config passkey.
+  priority                Set client config priority preference.
+  team                    Set client config team.
+  user                    Set client config user.
+
+  See 'fah-minder help config <subcommand>' for detailed help.
+```
 
 ## Build Requirements
 

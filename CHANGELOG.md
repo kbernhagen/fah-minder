@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.4] - 2023-03-12
+
 ### Added 
 
 - Added config checkpoint, key, passkey, priority, team, user
+- Moved declarations of options verbose, host, port, peer; this affects help messages
 
 
 ## [0.1.3] - 2023-01-22
@@ -45,7 +49,8 @@ First release
 Unreleased initial public commit
 
 
-[unreleased]: https://github.com/kbernhagen/fah-minder/compare/0.1.3...HEAD
+[unreleased]: https://github.com/kbernhagen/fah-minder/compare/0.1.4...HEAD
+[0.1.4]: https://github.com/kbernhagen/fah-minder/compare/0.1.3...0.1.4
 [0.1.3]: https://github.com/kbernhagen/fah-minder/compare/0.1.2...0.1.3
 [0.1.2]: https://github.com/kbernhagen/fah-minder/compare/0.1.1...0.1.2
 [0.1.1]: https://github.com/kbernhagen/fah-minder/compare/0.1.0...0.1.1
