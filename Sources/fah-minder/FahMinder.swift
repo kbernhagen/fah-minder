@@ -19,7 +19,7 @@ struct FahMinder: ParsableCommand {
     subcommands: [Start.self, Stop.self,
                   Pause.self, Unpause.self, Finish.self,
                   Status.self, Log.self,
-                  Config.self, App.self],
+                  Config.self, App.self, Get.self],
     helpNames: [.long])
 
   @OptionGroup var options: MainCommandOptions
@@ -134,6 +134,43 @@ struct FahMinder: ParsableCommand {
           // FIXME: not sufficient to catch ws close by client
           // get eventual error:
           // The operation couldn’t be completed. (Network.NWError error 0.)
+          CFRunLoopStop(CFRunLoopGetMain())
+        default:
+          break
+        }
+      }
+      client.connect()
+      CFRunLoopRun()
+    }
+  }
+
+  struct Get: ParsableCommand {
+    static var configuration = CommandConfiguration(
+      abstract: "Show value for period-separated key-path. Output is not JSON.",
+      usage: "\(FahMinder.usageBase) get <key-path>")
+
+      @Argument(help: "Exmples: config.user info.version")
+      var keyPath: String
+
+    mutating func run() throws {
+      let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
+      client.verbosity = Globals.verbosity
+      let kp = keyPath.replacingOccurrences(of: "-", with: "_")
+      client.onDidReceive = { event in
+        switch event {
+        case .text(let string):
+          if let data = string.data(using: .utf8) {
+            let result = try? JSONSerialization.jsonObject(with:data, options: [])
+            if let snap = result as? [String:Any] {
+              let d = snap as NSDictionary
+              let val = d.value(forKeyPath: kp)
+              if val != nil {
+                print(val!)
+              }
+            }
+          }
+          CFRunLoopStop(CFRunLoopGetMain())
+        case .error, .disconnected, .cancelled:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break

@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Replaced host, port, peer options with peer argument
 
+### Added
+
+- Added command get
+
 
 ## [0.1.4] - 2023-03-12
 

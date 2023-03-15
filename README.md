@@ -9,7 +9,7 @@ Runs on macOS 10.14 or later.
 
 ## Usage
 
-`fah-minder .`
+`fah-minder`
 
 ```
 OVERVIEW: macOS utility for the folding@home client version 8
@@ -33,6 +33,7 @@ SUBCOMMANDS:
   status                  Show client units, config, info.
   log                     Show client log. Use control-c to stop.
   config                  Set client config values.
+  get                     Show value for period-separated key-path. Output is not JSON.
 
   See 'fah-minder . help <subcommand>' for detailed help.
 
