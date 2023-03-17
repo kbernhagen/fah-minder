@@ -25,7 +25,7 @@ OPTIONS:
   --help                  Show help information.
 
 SUBCOMMANDS:
-  start                   Start service client.
+  start                   Start local service client.
   stop                    Stop all local clients running as <user>.
   pause                   Send pause to client.
   unpause                 Send unpause to client.
@@ -33,9 +33,9 @@ SUBCOMMANDS:
   status                  Show client units, config, info.
   log                     Show client log. Use control-c to stop.
   config                  Set client config values.
-  get                     Show value for period-separated key-path. Output is not JSON.
+  get                     Show value for period-separated key-path.
 
-  See 'fah-minder . help <subcommand>' for detailed help.
+  See 'fah-minder help <subcommand>' for detailed help.
 
 EXAMPLES:
   fah-minder . finish
@@ -48,7 +48,7 @@ NOTES:
   By default, the client only listens for connections from localhost.
 ```
 
-`fah-minder . help config`
+`fah-minder help config`
 
 ```
 OVERVIEW: Set client config values.
@@ -71,7 +71,7 @@ SUBCOMMANDS:
   team                    Set client config team.
   user                    Set client config user.
 
-  See 'fah-minder . help config <subcommand>' for detailed help.
+  See 'fah-minder help config <subcommand>' for detailed help.
 ```
 
 ## Build Requirements

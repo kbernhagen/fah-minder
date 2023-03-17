@@ -146,8 +146,9 @@ struct FahMinder: ParsableCommand {
 
   struct Get: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Show value for period-separated key-path. Output is not JSON.",
-      usage: "\(FahMinder.usageBase) get <key-path>")
+      abstract: "Show value for period-separated key-path.",
+      usage: "\(FahMinder.usageBase) get <key-path>",
+      discussion: "Output is JSON. Nothing is shown on error or if value does not exist.")
 
       @Argument(help: "Exmples: config.user info.version")
       var keyPath: String
@@ -164,8 +165,8 @@ struct FahMinder: ParsableCommand {
             if let snap = result as? [String:Any] {
               let d = snap as NSDictionary
               let val = d.value(forKeyPath: kp)
-              if val != nil {
-                print(val!)
+              if let s = jsonString(val) {
+                print(s)
               }
             }
           }
@@ -483,10 +484,10 @@ extension FahMinder {
   static func usage() {
     print(FahMinder.helpMessage())
     print(Globals.examplesText)
-    Darwin.exit(EX_USAGE)
   }
 
   mutating func run() throws {
     FahMinder.usage()
+    Darwin.exit(EX_USAGE)
   }
 }

@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Changed output of `get` command to JSON
+- Command `help` works without specifying `peer`
+
 
 ## [0.2.0] - 2023-03-15
 

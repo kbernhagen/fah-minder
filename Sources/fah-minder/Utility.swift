@@ -40,3 +40,15 @@ extension String {
     }
   }
 }
+
+func jsonString(_ obj: Any?) -> String? {
+  guard let obj = obj else { return nil }
+  var jsonData: Data?
+  if #available(macOS 10.15, *) {
+    jsonData = try? JSONSerialization.data(withJSONObject: obj, options: [.sortedKeys, .fragmentsAllowed, .prettyPrinted, .withoutEscapingSlashes])
+  } else {
+    jsonData = try? JSONSerialization.data(withJSONObject: obj, options: [.sortedKeys, .fragmentsAllowed, .prettyPrinted])
+  }
+  if jsonData == nil { return nil }
+  return String(data: jsonData!, encoding: .utf8)
+}
