@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.2.1] - 2023-03-23
+
 ### Changed
 
 - Changed output of `get` command to JSON
@@ -71,7 +75,8 @@ First release
 Unreleased initial public commit
 
 
-[unreleased]: https://github.com/kbernhagen/fah-minder/compare/0.2.0...HEAD
+[unreleased]: https://github.com/kbernhagen/fah-minder/compare/0.2.1...HEAD
+[0.2.1]: https://github.com/kbernhagen/fah-minder/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/kbernhagen/fah-minder/compare/0.1.4...0.2.0
 [0.1.4]: https://github.com/kbernhagen/fah-minder/compare/0.1.3...0.1.4
 [0.1.3]: https://github.com/kbernhagen/fah-minder/compare/0.1.2...0.1.3
