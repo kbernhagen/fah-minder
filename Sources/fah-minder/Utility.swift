@@ -28,6 +28,12 @@ func notifyPost(name: String!) {
   CFNotificationCenterPostNotification(nc, nn, nil, nil, true)
 }
 
+extension NSObject {
+  // FIXME: This is a hack to prevent an objc exception in value(forKeyPath:)
+  // when a key does not exist on a leaf object.
+  @objc func value(forUndefinedKey key: String) -> Any? { return nil }
+}
+
 extension String {
   var bool: Bool? {
     switch self.lowercased() {
@@ -41,14 +47,24 @@ extension String {
   }
 }
 
-func jsonString(_ obj: Any?) -> String? {
+func jsonString(_ obj: Any?, pretty: Bool = true) -> String? {
   guard let obj = obj else { return nil }
   var jsonData: Data?
+  var opt: JSONSerialization.WritingOptions
   if #available(macOS 10.15, *) {
-    jsonData = try? JSONSerialization.data(withJSONObject: obj, options: [.sortedKeys, .fragmentsAllowed, .prettyPrinted, .withoutEscapingSlashes])
+    if pretty {
+      opt = [.sortedKeys, .fragmentsAllowed, .prettyPrinted, .withoutEscapingSlashes]
+    } else {
+      opt = [.sortedKeys, .fragmentsAllowed, .withoutEscapingSlashes]
+    }
   } else {
-    jsonData = try? JSONSerialization.data(withJSONObject: obj, options: [.sortedKeys, .fragmentsAllowed, .prettyPrinted])
+    if pretty {
+      opt = [.sortedKeys, .fragmentsAllowed, .prettyPrinted]
+    } else {
+      opt = [.sortedKeys, .fragmentsAllowed]
+    }
   }
+  jsonData = try? JSONSerialization.data(withJSONObject: obj, options: opt)
   if jsonData == nil { return nil }
   return String(data: jsonData!, encoding: .utf8)
 }

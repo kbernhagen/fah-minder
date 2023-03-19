@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed output of `get` command to JSON
 - Command `help` works without specifying `peer`
 - Removed `log` filtering for group
+- Cap config cpus to max of info cpus
 
 ### Fixed
 

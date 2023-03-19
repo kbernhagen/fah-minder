@@ -81,6 +81,18 @@ public class FahClient: WebSocketDelegate {
     socket = nil
   }
 
+  func hasInfo() -> Bool {
+    return cache["info"] != nil
+  }
+
+  func maxCpus() -> UInt? {
+    if let info = cache["info"] as? [String:Any],
+      let m = info["cpus"] as? UInt {
+      return m
+    }
+    return nil
+  }
+
   func processUpdate(_ up: [String:Any]) {
     cache = up
     if verbosity > 2 { print("set cache:", jsonString(cache)!) }
@@ -189,7 +201,7 @@ public class FahClient: WebSocketDelegate {
       if shouldExitOnError { Darwin.exit(1) }
       return
     }
-    if let jsonString = jsonString(dict) {
+    if let jsonString = jsonString(dict, pretty: false) {
       send(jsonString, completion: completion)
     }
     // note: not calling completion

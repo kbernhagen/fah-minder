@@ -204,7 +204,7 @@ struct FahMinder: ParsableCommand {
       }
 
       mutating func run() throws {
-        send(config: ["cpus": value])
+        send(configKey: "cpus", value: value)
       }
     }
 
@@ -430,6 +430,38 @@ extension FahMinder.Config {
       }
     }
     client.connect()
+    CFRunLoopRun()
+  }
+
+  static func send(configKey key: String, value: Any) {
+    var config = [key: value]
+    let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
+    client.verbosity = Globals.verbosity
+    client.onDidReceive = { event in
+      switch event {
+      case .error, .disconnected, .cancelled:
+        CFRunLoopStop(CFRunLoopGetMain())
+      default:
+        if client.hasInfo() {
+          CFRunLoopStop(CFRunLoopGetMain())
+        }
+        break
+      }
+    }
+    client.connect()
+    CFRunLoopRun()
+    if key == "cpus" {
+      if let maxCpus = client.maxCpus(),
+        let value = value as? UInt {
+        if value > maxCpus {
+          fputs("warning: reducing cpus to max: \(maxCpus)\n", stderr)
+          config = [key: maxCpus]
+        }
+      }
+    }
+    client.send(config: config) {
+      CFRunLoopStop(CFRunLoopGetMain())
+    }
     CFRunLoopRun()
   }
 
