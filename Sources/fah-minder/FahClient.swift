@@ -82,15 +82,49 @@ public class FahClient: WebSocketDelegate {
   }
 
   func processUpdate(_ up: [String:Any]) {
+    cache = up
+    if verbosity > 2 { print("set cache:", jsonString(cache)!) }
   }
 
   func processUpdate(_ up: [Any]) {
+  /*
+// ["units", unitsIndex, key, value]
+// ["units", unitsIndex, null]
+// ["log", index?, value]
+// ["info", key, value]
+// ["config", key, value]
+
+["units", 0, "progress", 0.999064]
+["units", 0, "eta", "2.00 secs"]
+["units", 0, "state", "DONE"]
+["units", 0, null] // this is unit delete?
+["units", 0, {     "wu": 256,     "cpus": 16,     "gpus": [],     "state": "ASSIGN"   }]
+["units", 0, "paused", false]
+["units", 0, "id", "k5g1gRXjKRlHNhNJcINRERHm10SjTi-seg5znhX-xrk"]
+["units", 0, "assignment", {     "time": "2022-03-26T05:07:46Z",     "ws": "128.252.203.11",     "port": 443,     "project": 18206,     "deadline": 432000,     "timeout": 172800,     "credit": 2470,     "cpus": 16,     "core": {"type": 168, "url": "https://cores.foldingathome.org/fahcore-a8-osx-64bit-avx2_256-0.0.12.tar.bz2", "sha256": "7e36d0874f5e87ba5b7aeaf66c08afd1ffa6d16fe21877b2b5f3d15a0a8a9f4a"}   }]
+["units", 0, "progress", 0.000347]
+["units", 0, "frames", 1]
+
+["log", -1, "\u001b[92m01:08:22:D3:Remote::New client from 192.168.42.99:62440\u001b[0m"]
+
+["info", "cpus", 31]
+["config", "cause", "any"]
+  */
   }
 
   func proccessMessage(_ msg: String) {
+    if let data = msg.data(using: .utf8) {
+      let result = try? JSONSerialization.jsonObject(with:data, options: [.mutableContainers])
+      if let snap = result as? [String:Any] {
+        processUpdate(snap)
+      } else if let array = result as? [Any] {
+        processUpdate(array)
+      }
+    }
   }
 
   func proccessMessage(_ msg: Data) {
+    // client should not be sending data
   }
 
   public func didReceive(event: WebSocketEvent, client: WebSocket) {
@@ -155,10 +189,10 @@ public class FahClient: WebSocketDelegate {
       if shouldExitOnError { Darwin.exit(1) }
       return
     }
-    guard let jsonData = try? JSONSerialization.data(withJSONObject: dict)
-    else { return }
-    let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
-    send(jsonString, completion: completion)
+    if let jsonString = jsonString(dict) {
+      send(jsonString, completion: completion)
+    }
+    // note: not calling completion
   }
 
   func send(config: [String:Any],  completion: (() -> ())?) {

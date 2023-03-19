@@ -111,8 +111,7 @@ struct FahMinder: ParsableCommand {
       usage: "\(FahMinder.usageBase) log")
 
     mutating func run() throws {
-      let client = FahClient(host: Globals.host, port: Globals.port)
-      let filter = ":\(Globals.group):"
+      let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
       client.verbosity = Globals.verbosity
       client.onDidReceive = { event in
         switch event {
@@ -125,7 +124,7 @@ struct FahMinder: ParsableCommand {
             if let arr = result as? [Any] {
               if arr[0] as? String == "log" {
                 if let line = arr[2] as? String {
-                  if filter == "::" || line.contains(filter) { print(line) }
+                  print(line)
                 }
               }
             }

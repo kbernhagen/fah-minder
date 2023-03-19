@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changed output of `get` command to JSON
 - Command `help` works without specifying `peer`
+- Removed `log` filtering for group
+
+### Fixed
+
+- `log` command connects to correct group
 
 
 ## [0.2.0] - 2023-03-15
