@@ -19,14 +19,14 @@ struct FahMinder: ParsableCommand {
     subcommands: [Start.self, Stop.self,
                   Pause.self, Unpause.self, Finish.self,
                   Status.self, Log.self,
-                  Config.self, App.self, Get.self],
+                  Config.self, App.self, Get.self, Watch.self],
     helpNames: [.long])
 
   @OptionGroup var options: MainCommandOptions
 
   struct Start: ParsableCommand {
     static var configuration = CommandConfiguration(
-      abstract: "Start service client.",
+      abstract: "Start local service client.",
       usage: "\(Globals.processName) [-v] . start",
       discussion: "<user> must match UserName in client launchd plist.")
 
@@ -118,6 +118,7 @@ struct FahMinder: ParsableCommand {
         case .connected(_):
           client.send(["cmd": "log", "enable": true]) {}
         case .text(let string):
+          if Globals.verbosity > 3 { return } // FahClient will be printing log
           // FIXME: this works, but is obviously deficient
           if let data = string.data(using: .utf8) {
             let result = try? JSONSerialization.jsonObject(with:data, options: [])
@@ -387,6 +388,28 @@ struct FahMinder: ParsableCommand {
 
     mutating func run() throws {
       print("NOT IMPLEMENTED")
+    }
+  }
+
+  struct Watch: ParsableCommand {
+    static var configuration = CommandConfiguration(
+      abstract: "",
+      usage: "\(FahMinder.usageBase) watch",
+      shouldDisplay: false)
+
+    mutating func run() throws {
+      let client = FahClient(host: Globals.host, port: Globals.port, group: Globals.group)
+      client.verbosity = max(Globals.verbosity, 4)
+      client.onDidReceive = { event in
+        switch event {
+        case .error, .disconnected, .cancelled:
+          CFRunLoopStop(CFRunLoopGetMain())
+        default:
+          break
+        }
+      }
+      client.connect()
+      CFRunLoopRun()
     }
   }
 }

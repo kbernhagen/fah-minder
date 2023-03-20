@@ -43,7 +43,7 @@ public class FahClient: WebSocketDelegate {
     pingTimer?.setEventHandler() {
       if self.isConnected {
         self.socket?.write(ping: Data())
-        if self.verbosity > 3 { print("Sent ping") }
+        if self.verbosity > 4 { print("Sent ping") }
       }
     }
     pingTimer?.resume()
@@ -95,13 +95,15 @@ public class FahClient: WebSocketDelegate {
 
   func processUpdate(_ up: [String:Any]) {
     cache = up
-    if verbosity > 2 { print("set cache:", jsonString(cache)!) }
+    if verbosity > 2 { print("did set cache") }
   }
 
   func processUpdate(_ up: [Any]) {
   /*
 // ["units", unitsIndex, key, value]
-// ["units", unitsIndex, null]
+// ["units", unitsIndex, value]
+// ["units", unitsIndex, null] // not same as nil; NSNull?
+// ["units", unitsIndex, {}]
 // ["log", index?, value]
 // ["info", key, value]
 // ["config", key, value]
@@ -141,10 +143,13 @@ public class FahClient: WebSocketDelegate {
 
   public func didReceive(event: WebSocketEvent, client: WebSocket) {
     switch event {
-    case .connected(let headers):
+    case .connected(_):
       isConnected = true
-      //startPingTimer() // disabled; client will ping us; seems to not pong
-      if verbosity > 3 { print("websocket is connected: \(headers)") }
+      //startPingTimer() // disabled; client will ping us
+      if verbosity > 1 {
+        let url = socket?.request.description ?? ""
+        print("connected to \(url)")
+      }
       timeoutTimer?.cancel()
       timeoutTimer = nil
     case .disconnected(let reason, let code):
@@ -159,10 +164,10 @@ public class FahClient: WebSocketDelegate {
       if verbosity > 3 { print("Received data: \(data.count)") }
       proccessMessage(data)
     case .ping(_):
-      if verbosity > 3 { print("Received ping") }
+      if verbosity > 4 { print("Received ping") }
       break
     case .pong(_):
-      if verbosity > 3 { print("Received pong") }
+      if verbosity > 4 { print("Received pong") }
       break
     case .viabilityChanged(let flag):
       if verbosity > 3 { print("viabilityChanged \(flag)") }
