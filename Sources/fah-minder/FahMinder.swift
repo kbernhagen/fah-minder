@@ -444,7 +444,9 @@ extension FahMinder.Config {
       switch event {
       case .connected(_):
         client.send(config: config) {
-          CFRunLoopStop(CFRunLoopGetMain())
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            CFRunLoopStop(CFRunLoopGetMain())
+          }
         }
       case .error, .disconnected, .cancelled:
         CFRunLoopStop(CFRunLoopGetMain())
@@ -483,7 +485,9 @@ extension FahMinder.Config {
       }
     }
     client.send(config: config) {
-      CFRunLoopStop(CFRunLoopGetMain())
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        CFRunLoopStop(CFRunLoopGetMain())
+      }
     }
     CFRunLoopRun()
   }
@@ -520,7 +524,12 @@ extension FahMinder {
         switch event {
         case .connected(_):
           client.send(command: command) {
-            CFRunLoopStop(CFRunLoopGetMain())
+            //client.disconnect() // not needed
+            // delay is required for websocket to be closed
+            // maybe because of pending .text event
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+              CFRunLoopStop(CFRunLoopGetMain())
+            }
           }
         case .error, .disconnected, .cancelled:
           CFRunLoopStop(CFRunLoopGetMain())
