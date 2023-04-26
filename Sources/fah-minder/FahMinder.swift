@@ -319,7 +319,7 @@ struct FahMinder: ParsableCommand {
         abstract: "Set client config priority preference.",
         usage: "\(FahMinder.usageBase) config priority <value>")
 
-      @Argument(help: "idle, low, normal, inherit, high")
+      @Argument(help: "idle, low, normal, inherit")
       var value: ProcessPriority
 
       mutating func run() throws {
@@ -434,7 +434,6 @@ extension FahMinder.Config {
     case low
     case normal
     case inherit
-    case high
   }
 
   static func send(config: [String:Any]) {
