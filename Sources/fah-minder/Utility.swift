@@ -68,3 +68,27 @@ func jsonString(_ obj: Any?, pretty: Bool = true) -> String? {
   if jsonData == nil { return nil }
   return String(data: jsonData!, encoding: .utf8)
 }
+
+func dropPrivileges() {
+  var gid = getgid()
+  var uid = getuid()
+  // if root, use SUDO_UID else -2 "nobody"
+  if uid == 0 || gid == 0 {
+    let env = ProcessInfo.processInfo.environment
+    let suid = UInt32(env["SUDO_UID"] ?? "0")!
+    let sgid = UInt32(env["SUDO_GID"] ?? "0")!
+    if uid == 0 {
+      if suid != 0 { uid = suid }
+      else { uid = UInt32.max - 1 }
+    }
+    if gid == 0 {
+      if sgid != 0 { gid = sgid }
+      else { gid = UInt32.max - 1 }
+    }
+  }
+  // TODO: error checking
+  setgid(gid)
+  setregid(gid, gid)
+  setuid(uid)
+  setreuid(uid, uid)
+}

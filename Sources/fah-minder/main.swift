@@ -7,6 +7,8 @@
 
 import Darwin
 
+dropPrivileges()
+
 registerExitSignal(SIGINT)
 registerExitSignal(SIGTERM)
 signal(SIGPIPE, SIG_IGN)
