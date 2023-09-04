@@ -31,7 +31,8 @@ func notifyPost(name: String!) {
 extension NSObject {
   // FIXME: This is a hack to prevent an objc exception in value(forKeyPath:)
   // when a key does not exist on a leaf object.
-  @objc func value(forUndefinedKey key: String) -> Any? { return nil }
+  // compiler no longer allows this
+  //@objc func value(forUndefinedKey key: String) -> Any? { return nil }
 }
 
 extension String {

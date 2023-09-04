@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Validate cpus vs config available_cpus
+
 ---
 
 ## [0.2.2] - 2023-04-30

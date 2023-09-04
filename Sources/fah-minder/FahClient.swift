@@ -86,6 +86,10 @@ public class FahClient: WebSocketDelegate {
   }
 
   func maxCpus() -> UInt? {
+    if let conf = cache["config"] as? [String:Any],
+      let m = conf["available_cpus"] as? UInt {
+      return m
+    }
     if let info = cache["info"] as? [String:Any],
       let m = info["cpus"] as? UInt {
       return m
@@ -123,6 +127,8 @@ public class FahClient: WebSocketDelegate {
 
 ["info", "cpus", 31]
 ["config", "cause", "any"]
+
+["info", {}]
   */
   }
 

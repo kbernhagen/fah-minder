@@ -466,7 +466,7 @@ extension FahMinder.Config {
       case .error, .disconnected, .cancelled:
         CFRunLoopStop(CFRunLoopGetMain())
       default:
-        if client.hasInfo() {
+        if client.maxCpus() != nil {
           CFRunLoopStop(CFRunLoopGetMain())
         }
         break
