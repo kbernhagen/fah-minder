@@ -147,7 +147,7 @@ public class FahClient: WebSocketDelegate {
     // client should not be sending data
   }
 
-  public func didReceive(event: WebSocketEvent, client: WebSocket) {
+  public func didReceive(event: WebSocketEvent, client: WebSocketClient) {
     switch event {
     case .connected(_):
       isConnected = true
@@ -186,6 +186,9 @@ public class FahClient: WebSocketDelegate {
     case .cancelled:
       isConnected = false
       if verbosity > 3 { print("websocket cancelled") }
+    case .peerClosed:
+      isConnected = false
+      if verbosity > 3 { print("websocket closed by peer") }
     case .error(let error):
       isConnected = false
       handleError(error)

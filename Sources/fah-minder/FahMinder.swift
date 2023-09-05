@@ -94,7 +94,7 @@ struct FahMinder: ParsableCommand {
         case .text(let string):
           print(string)
           CFRunLoopStop(CFRunLoopGetMain())
-        case .error, .disconnected, .cancelled:
+        case .error, .disconnected, .cancelled, .peerClosed:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -130,10 +130,7 @@ struct FahMinder: ParsableCommand {
               }
             }
           }
-        case .error, .disconnected(_,_), .cancelled:
-          // FIXME: not sufficient to catch ws close by client
-          // get eventual error:
-          // The operation couldn’t be completed. (Network.NWError error 0.)
+        case .error, .disconnected(_,_), .cancelled, .peerClosed:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -171,7 +168,7 @@ struct FahMinder: ParsableCommand {
             }
           }
           CFRunLoopStop(CFRunLoopGetMain())
-        case .error, .disconnected, .cancelled:
+        case .error, .disconnected, .cancelled, .peerClosed:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -402,7 +399,7 @@ struct FahMinder: ParsableCommand {
       client.verbosity = max(Globals.verbosity, 4)
       client.onDidReceive = { event in
         switch event {
-        case .error, .disconnected, .cancelled:
+        case .error, .disconnected, .cancelled, .peerClosed:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
@@ -447,7 +444,7 @@ extension FahMinder.Config {
             CFRunLoopStop(CFRunLoopGetMain())
           }
         }
-      case .error, .disconnected, .cancelled:
+      case .error, .disconnected, .cancelled, .peerClosed:
         CFRunLoopStop(CFRunLoopGetMain())
       default:
         break
@@ -463,7 +460,7 @@ extension FahMinder.Config {
     client.verbosity = Globals.verbosity
     client.onDidReceive = { event in
       switch event {
-      case .error, .disconnected, .cancelled:
+      case .error, .disconnected, .cancelled, .peerClosed:
         CFRunLoopStop(CFRunLoopGetMain())
       default:
         if client.maxCpus() != nil {
@@ -530,7 +527,7 @@ extension FahMinder {
               CFRunLoopStop(CFRunLoopGetMain())
             }
           }
-        case .error, .disconnected, .cancelled:
+        case .error, .disconnected, .cancelled, .peerClosed:
           CFRunLoopStop(CFRunLoopGetMain())
         default:
           break
