@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Validate cpus vs config available_cpus
+- Support array log messages
 
 ---
 

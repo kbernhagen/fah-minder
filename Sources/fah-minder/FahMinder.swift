@@ -127,6 +127,9 @@ struct FahMinder: ParsableCommand {
                 if let line = arr[2] as? String {
                   print(line)
                 }
+                else if let lines = arr[2] as? [String] {
+                  for line in lines { print(line) }
+                }
               }
             }
           }
