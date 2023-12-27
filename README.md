@@ -6,6 +6,8 @@ This is my excuse to learn Swift, so don't expect best practices.
 
 Runs on macOS 10.14 or later.
 
+Note: fah-minder has not been updated to work with fah v8.3.
+For this, please try [lufah](https://github.com/kbernhagen/lufah).
 
 ## Usage
 
